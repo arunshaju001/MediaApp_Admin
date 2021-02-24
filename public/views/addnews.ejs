@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+        <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+        <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        
+
+        <title>Add News</title>
+    </head>
+    <body>
+        
+        <br>
+
+        <div class="container">
+            <% if ( msg !='' ) { %>
+                <div class="alert alert-success" role="alert"><%=msg%></div>
+            <% }  %>
+            <%  if( error !='' ){ %>
+                <div class="alert alert-danger" role="alert"><%=error%></div>
+            <% } %>
+            <div class="d-flex justify-content-between">
+                <h2 style="color:rgb(24, 49, 95)" >Hi, <%=user.name%></h2>
+                <a href="/admin/users/viewnews" class="btn btn-primary" role="button">View News</a>
+                <a href="/admin/users/logout" class="btn btn-danger" role="button">Logout</a>
+            </div>
+            <br>
+            <h2><strong>Add News</strong></h2>
+                    <br>
+                    <form action="/admin/api/auth/addnews" method="POST">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="title" placeholder="Enter Title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="newsdesc" placeholder="Enter Description" name="newsdesc" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="url" class="form-control" id="url" placeholder="Enter Url" name="url" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="url" class="form-control" id="image" placeholder="Enter Image Url" name="image" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="date"  class="form-control" id="date"  name="date" style="width: min-content;" required>
+                        </div>
+
+                        <br>
+                        <button type="submit" class="btn btn-success">Add</button>
+                        <a href="/admin/users/addnews" class="btn btn-danger" role="button">Clear</a>
+                    </form>
+        </div>
+
+</body>
+</html>

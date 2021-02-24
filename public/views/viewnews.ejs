@@ -1,0 +1,178 @@
+<html>
+    <head>
+        <title>News List</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+        <!-- For DataTables -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+        
+
+    </head>
+    <body>
+      <br>
+        <div class="container">
+          <div class="d-flex justify-content-between">
+            <h2 style="color:rgb(24, 49, 95)" >Hi, <%=user.name%></h2>
+            <a href="/admin/users/addnews" class="btn btn-primary" role="button">Add News</a>
+            <a href="/admin/users/logout" class="btn btn-danger" role="button">Logout</a>
+          </div>
+                <br>
+                <h2>News List</h2>
+                <div class="table-responsive">
+                  <table class="table table-hover table-striped" id="myTable">
+                    <caption>News List</caption>
+                  <thead class = "thead-dark">
+                    <tr>
+                      <th>Title</th>
+                      <th>Description</th>
+                      <th>Published At</th>
+                      <th>Edit/Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      <% for(var i=0; i<news.length; i++) {%>
+                  <tr>
+                    <td><%= news[i].title %></td>
+                    <td><%= news[i].newsdesc %></td>
+                    <td><%= news[i].date %></td>
+                    <td>
+                      <button type="button" class="update btn btn-warning"
+                       data-toggle="modal" data-target="#myModal" 
+                       id="<%=news[i].title %>">
+                          Edit
+                      </button>
+                        <button type="button" id="<%=news[i].title %>" 
+                          class="delete btn btn-danger" 
+                          value ="<%=news[i].title %>">
+                          delete
+                        </button>
+                    </td>
+                  </tr>
+                <% } %>
+                  </tbody>
+                  <tfoot class="thead-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Published At</th>
+                        <th>Edit/Delete</th>
+                    </tr>
+                  </tfoot>
+                </table>
+
+                <!--  Modal Starts-->
+                  <div class="modal fade" id="myModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                  <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title">News Editor</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                  
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                          <div class="container">
+                                    <form action="/admin/api/auth/update" method="POST" id="update_news">
+                                      
+                                      <div class="form-group">
+                                        <label for="title">Title:</label>
+                                        <input type="text" class="form-control" id="update_title" placeholder="Enter title" name="title" required>
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="newsdesc">Description:</label>
+                                        <input type="text" class="form-control" id="update_newsdesc" placeholder="Enter Description" name="newsdesc" required>
+                                      </div>
+                                    </form>
+                                  </div>
+                                        </div>
+                
+                                        <!-- Modal footer -->
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                          <button type="submit" id="update_table" class="btn btn-success">update</button>
+                                        </div>
+                                  
+                                      </div>
+                                    </div>
+                  </div>
+                  <script >
+                    $('.delete').click(function() {
+                      var response = confirm("Do you want to delete the News ?")
+                      title = this.id;
+                      if(response === true){
+                          $.ajax({
+                              type: 'DELETE',
+                              url: '/admin/api/auth/delete',
+                              method: 'delete',
+                              data: {"title":title},
+                              success: function(data){
+                                  window.location.reload()
+                              },
+                              error: function(){
+                                  alert('Cannot Delete News');
+                              }
+                          });
+                      }
+                      else{
+                          alert("News Not deleted")
+                      }
+                  });
+                  </script>
+                  <script>
+                      var title;
+                      var to_be_updated;
+                        $(document).ready(function() {
+                            $('#myTable').DataTable();
+                            });
+                        // edit data
+                        $('.update').click(function() {
+                            title= this.id;
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/admin/api/auth/findnews',
+                                    data: {"title":title},
+                                    success: function(data){
+                                            to_be_updated = data.title;
+                                            $("#update_title").attr("value", data.title);
+                                            $("#update_newsdesc").attr("value", data.newsdesc);
+                                            $('#Modal').modal({show: true});
+                                        },
+                                    error: function(){
+                                        alert('No data');
+                                    }
+                                    });
+                            });
+
+
+
+
+                            
+                            // update data
+                                  $(function(){
+                                      $('#update_table').on('click', function(e){
+                                        var title = to_be_updated;
+                                        var newtitle = $('#update_title').val();
+                                        var newsdesc = $('#update_newsdesc').val();
+                                        e.preventDefault();
+                                        $.ajax({
+                                          url: '/admin/api/auth/update',
+                                          type:'PUT',
+                                          data : {"title":title, "newtitle":newtitle, "newsdesc":newsdesc},
+                                          success: function(data){
+                                            window.location.reload()
+                                        },
+                                        error: function(){
+                                          alert('No data');
+                                        }
+                                      });
+                                  });
+                                  });
+                  </script>
+    </body>
+</html>
